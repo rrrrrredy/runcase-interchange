@@ -29,8 +29,8 @@ try {
   if ($LASTEXITCODE -ne 0) { throw "npm ci failed." }
   npm run check
   if ($LASTEXITCODE -ne 0) { throw "Protocol checks failed." }
-  $packageArchive = Join-Path $outputRoot "agent-run-protocol-core-$resolvedVersion.tgz"
-  $schemaArchive = Join-Path $outputRoot "agent-run-protocol-schemas-$resolvedVersion.zip"
+  $packageArchive = Join-Path $outputRoot "runcase-interchange-$resolvedVersion.tgz"
+  $schemaArchive = Join-Path $outputRoot "runcase-interchange-schemas-$resolvedVersion.zip"
   $manifestPath = Join-Path $outputRoot "release-manifest.json"
   $checksumPath = Join-Path $outputRoot "SHA256SUMS.txt"
   foreach ($existing in @($packageArchive, $schemaArchive, $manifestPath, $checksumPath)) {
@@ -62,7 +62,7 @@ try {
     }
   }
   $manifest = [ordered]@{
-    schema_version = "agent-run-protocol.release.v1"
+    schema_version = "runcase-interchange.release.v1"
     version = $resolvedVersion
     commit = $commit
     created_at = [DateTime]::UtcNow.ToString("o")

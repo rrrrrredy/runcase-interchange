@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:agent-run-protocol:schema:workflow.score.v1",
+  "$id": "urn:runcase-interchange:schema:workflow.score.v1",
   "title": "Workflow Score v1",
   "description": "Objective validation and execution evidence for one agent Run on one workflow Case.",
   "type": "object",

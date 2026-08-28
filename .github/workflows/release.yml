@@ -38,4 +38,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${{ github.ref_name }}" (Get-ChildItem artifacts -File | ForEach-Object FullName) --verify-tag --generate-notes --title "Agent Run Protocol ${{ github.ref_name }}"
+          gh release create "${{ github.ref_name }}" (Get-ChildItem artifacts -File | ForEach-Object FullName) --verify-tag --generate-notes --title "RunCase Interchange ${{ github.ref_name }}"

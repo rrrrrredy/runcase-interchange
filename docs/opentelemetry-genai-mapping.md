@@ -2,7 +2,7 @@
 
 This mapping is an export adapter, not a replacement for the protocol. The OpenTelemetry GenAI agent conventions are currently marked Development and can change independently.
 
-| Agent Run Protocol | OpenTelemetry concept | Mapping note |
+| RunCase Interchange | OpenTelemetry concept | Mapping note |
 |---|---|---|
 | `run_id` | trace id or agent invocation span attribute | Preserve `run_id` as an additional attribute; it need not equal a trace id. |
 | `events[*]` | spans and span events | One protocol event may map to a span, a span event, or no OTel record. |

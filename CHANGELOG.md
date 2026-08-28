@@ -6,6 +6,7 @@
 - Reproducible release assets now include package/schema archives, SHA-256 checksums, a commit manifest, and GitHub provenance attestations.
 - CI covers both supported Node.js 20 and Node.js 22 runtimes.
 - Public instructions now identify GitHub Releases as the sole 0.1 package channel and require checksum verification instead of implying an npm-registry publication.
+- Renamed the unpublished project to RunCase Interchange after finding an existing, materially different Agent Run Protocol; the three document schema-version discriminators remain unchanged.
 
 ## [0.1.0] - 2026-08-28
 

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:agent-run-protocol:schema:agent.run.v1",
+  "$id": "urn:runcase-interchange:schema:agent.run.v1",
   "title": "Agent Run v1",
   "description": "A portable record of one agent execution and the evidence retained about it.",
   "type": "object",

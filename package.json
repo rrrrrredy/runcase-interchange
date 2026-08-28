@@ -1,5 +1,5 @@
 {
-  "name": "@agent-run-protocol/core",
+  "name": "@runcase/interchange",
   "version": "0.1.0",
   "description": "Versioned JSON Schemas and a validation CLI for portable agent runs, workflow cases, and scores.",
   "type": "module",
@@ -7,12 +7,12 @@
   "author": "Song Luo",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rrrrrredy/agent-run-protocol.git"
+    "url": "https://github.com/rrrrrredy/runcase-interchange.git"
   },
-  "bugs": "https://github.com/rrrrrredy/agent-run-protocol/issues",
-  "homepage": "https://github.com/rrrrrredy/agent-run-protocol#readme",
+  "bugs": "https://github.com/rrrrrredy/runcase-interchange/issues",
+  "homepage": "https://github.com/rrrrrredy/runcase-interchange#readme",
   "bin": {
-    "arp": "./dist/src/cli.js"
+    "rci": "./dist/src/cli.js"
   },
   "exports": {
     ".": "./dist/src/index.js",

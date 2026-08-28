@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:agent-run-protocol:schema:workflow.case.v1",
+  "$id": "urn:runcase-interchange:schema:workflow.case.v1",
   "title": "Workflow Case v1",
   "description": "A portable definition of one resettable and objectively verifiable agent task.",
   "type": "object",

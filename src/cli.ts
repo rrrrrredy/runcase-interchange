@@ -20,11 +20,11 @@ interface FileResult {
 
 function usage(): string {
   return [
-    "Agent Run Protocol validator",
+    "RunCase Interchange validator",
     "",
     "Usage:",
-    "  arp schemas [--json]",
-    "  arp validate <file-or-directory>... [--schema <version>] [--json]",
+    "  rci schemas [--json]",
+    "  rci validate <file-or-directory>... [--schema <version>] [--json]",
     "",
     "Directories are scanned recursively for .json files.",
   ].join("\n");

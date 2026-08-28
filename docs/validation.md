@@ -25,8 +25,8 @@ The current release-candidate pack contained 19 files, about 19 kB compressed an
 
 Release packaging produced:
 
-- `agent-run-protocol-core-0.1.0.tgz`;
-- `agent-run-protocol-schemas-0.1.0.zip`;
+- `runcase-interchange-0.1.0.tgz`;
+- `runcase-interchange-schemas-0.1.0.zip`;
 - a commit-bound `release-manifest.json`;
 - `SHA256SUMS.txt`, independently rehashed with all three entries matching.
 

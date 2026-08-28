@@ -1,6 +1,6 @@
-# Agent Run Protocol
+# RunCase Interchange
 
-Agent Run Protocol is the only shared contract between Runtime Evolution Workbench and Workflow Environment Factory. It defines portable JSON records; it does not provide a database, queue, UI, runner, environment, or product service.
+RunCase Interchange is the only shared contract between Runtime Evolution Workbench and Workflow Environment Factory. It defines portable Run, Case, and Score JSON records; it does not provide a database, queue, UI, runner, environment, or product service.
 
 ## Schemas
 
@@ -28,17 +28,17 @@ The CLI exits with `0` when every document is valid, `1` when at least one docum
 
 Version 0.1 is distributed through this repository's GitHub Releases, not the public npm registry. Do not infer registry ownership from the package name.
 
-Download `agent-run-protocol-core-0.1.0.tgz` and `SHA256SUMS.txt` from the same release, verify the tarball, then install the exact file or release URL:
+Download `runcase-interchange-0.1.0.tgz` and `SHA256SUMS.txt` from the same release, verify the tarball, then install the exact file or release URL:
 
 ```powershell
-$expected = (Get-Content .\SHA256SUMS.txt | Where-Object { $_ -match 'agent-run-protocol-core-0.1.0.tgz$' }).Split()[0]
-$actual = (Get-FileHash .\agent-run-protocol-core-0.1.0.tgz -Algorithm SHA256).Hash.ToLowerInvariant()
-if ($actual -ne $expected) { throw 'Agent Run Protocol package checksum mismatch.' }
-npm install .\agent-run-protocol-core-0.1.0.tgz
-.\node_modules\.bin\arp schemas
+$expected = (Get-Content .\SHA256SUMS.txt | Where-Object { $_ -match 'runcase-interchange-0.1.0.tgz$' }).Split()[0]
+$actual = (Get-FileHash .\runcase-interchange-0.1.0.tgz -Algorithm SHA256).Hash.ToLowerInvariant()
+if ($actual -ne $expected) { throw 'RunCase Interchange package checksum mismatch.' }
+npm install .\runcase-interchange-0.1.0.tgz
+.\node_modules\.bin\rci schemas
 ```
 
-`agent-run-protocol-schemas-0.1.0.zip` is the language-neutral distribution. `release-manifest.json` binds both archives to the source commit, and GitHub publishes build-provenance attestations for the release assets.
+`runcase-interchange-schemas-0.1.0.zip` is the language-neutral distribution. `release-manifest.json` binds both archives to the source commit, and GitHub publishes build-provenance attestations for the release assets.
 
 ## Compatibility policy
 
