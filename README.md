@@ -28,6 +28,8 @@ The CLI exits with `0` when every document is valid, `1` when at least one docum
 
 Version 0.1 is distributed through this repository's GitHub Releases, not the public npm registry. Do not infer registry ownership from the package name.
 
+The `v0.1.x` line is published as a GitHub prerelease while the contracts receive their first independent consumer feedback. Consumers should pin both the release version and archive integrity rather than following a mutable branch.
+
 Download `runcase-interchange-0.1.0.tgz` and `SHA256SUMS.txt` from the same release, verify the tarball, then install the exact file or release URL:
 
 ```powershell
@@ -68,6 +70,10 @@ docs/      interoperability notes
 ## OpenTelemetry mapping
 
 `docs/opentelemetry-genai-mapping.md` defines an optional, lossy mapping. OpenTelemetry GenAI agent semantic conventions are still evolving, so they are not the canonical internal model.
+
+## Project support
+
+Reproducible bugs and schema proposals belong in GitHub Issues. Usage and adoption expectations are documented in [SUPPORT.md](SUPPORT.md), contributions in [CONTRIBUTING.md](CONTRIBUTING.md), and private vulnerability reports in [SECURITY.md](SECURITY.md).
 
 ## License
 

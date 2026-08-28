@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- GitHub tag releases now require curated, version-matched adoption notes and are labeled prereleases instead of presenting generated commit summaries as product documentation.
+- Added a public support boundary for usage questions, schema proposals, bug reports, and sensitive Run data.
 - Independent third-party implementation reports remain pending.
 - Reproducible release assets now include package/schema archives, SHA-256 checksums, a commit manifest, and GitHub provenance attestations.
 - CI covers both supported Node.js 20 and Node.js 22 runtimes.
