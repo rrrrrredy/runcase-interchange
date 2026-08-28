@@ -1,0 +1,25 @@
+name: Schema proposal
+description: Propose an interoperable contract change.
+title: "[Proposal] "
+labels: ["schema-proposal"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Interoperability problem
+      description: Explain the user-visible exchange that the current protocol cannot represent.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Real producer and consumer evidence
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility impact
+      description: State whether this is additive or requires a new schema identifier.
+    validations:
+      required: true

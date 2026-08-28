@@ -1,0 +1,41 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Build release assets
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart("v")
+          .\scripts\Package-Release.ps1 -Version $version -OutputDirectory (Join-Path $env:GITHUB_WORKSPACE "artifacts")
+      - name: Attest archives
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: |
+            artifacts/*.tgz
+            artifacts/*.zip
+            artifacts/release-manifest.json
+      - name: Publish GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" (Get-ChildItem artifacts -File | ForEach-Object FullName) --verify-tag --generate-notes --title "Agent Run Protocol ${{ github.ref_name }}"

@@ -1,0 +1,32 @@
+name: Protocol or validator bug
+description: Report a schema, CLI, or interoperability defect.
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: document
+    attributes:
+      label: Minimal redacted document
+      description: Never include credentials, private source, or production data.
+      render: json
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Package version
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Expected and actual result
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Reproduction command
+      render: shell
+    validations:
+      required: true
