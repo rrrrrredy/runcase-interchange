@@ -65,6 +65,8 @@ try {
     schema_version = "runcase-interchange.release.v1"
     version = $resolvedVersion
     commit = $commit
+    node_version = (& node --version | Out-String).Trim()
+    npm_version = (& npm --version | Out-String).Trim()
     created_at = [DateTime]::UtcNow.ToString("o")
     artifacts = $artifacts
   } | ConvertTo-Json -Depth 5
