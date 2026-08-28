@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agent-run-protocol:schema:workflow.score.v1",
+  "title": "Workflow Score v1",
+  "description": "Objective validation and execution evidence for one agent Run on one workflow Case.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "score_id",
+    "run_id",
+    "case_id",
+    "configuration_snapshot_id",
+    "protocol_versions",
+    "created_at",
+    "execution",
+    "task_result",
+    "validations",
+    "trace_findings",
+    "resource_usage",
+    "nondeterminism",
+    "summary"
+  ],
+  "properties": {
+    "schema_version": { "const": "workflow.score.v1" },
+    "score_id": { "$ref": "#/$defs/uuid" },
+    "run_id": { "$ref": "#/$defs/uuid" },
+    "case_id": { "$ref": "#/$defs/uuid" },
+    "configuration_snapshot_id": { "type": "string", "minLength": 1 },
+    "protocol_versions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["run", "case", "score"],
+      "properties": {
+        "run": { "const": "agent.run.v1" },
+        "case": { "const": "workflow.case.v1" },
+        "score": { "const": "workflow.score.v1" }
+      }
+    },
+    "created_at": { "$ref": "#/$defs/timestamp" },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "started_at", "ended_at"],
+      "properties": {
+        "status": { "type": "string", "enum": ["completed", "cancelled", "agent_timeout", "agent_crash", "environment_error", "reset_error", "validator_error"] },
+        "started_at": { "$ref": "#/$defs/timestamp" },
+        "ended_at": { "$ref": "#/$defs/timestamp" },
+        "failure_stage": { "type": "string", "enum": ["preparing", "resetting", "running", "validating", "cleanup"] },
+        "details": { "type": "string" }
+      }
+    },
+    "task_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "type": "string", "enum": ["pass", "partial", "fail", "not_scored"] },
+        "score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "reason": { "type": "string" }
+      }
+    },
+    "validations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["validator_id", "status", "objective", "required", "duration_ms", "evidence"],
+        "properties": {
+          "validator_id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$" },
+          "status": { "type": "string", "enum": ["pass", "fail", "error", "skipped"] },
+          "objective": { "type": "boolean" },
+          "required": { "type": "boolean" },
+          "duration_ms": { "type": "integer", "minimum": 0 },
+          "summary": { "type": "string" },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind", "summary"],
+              "properties": {
+                "kind": { "type": "string", "enum": ["structured", "content_ref", "artifact", "event", "text"] },
+                "summary": { "type": "string", "minLength": 1 },
+                "ref": { "type": "string", "minLength": 1 },
+                "data": { "type": "object", "additionalProperties": true },
+                "redacted": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "trace_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["finding_id", "category", "severity", "summary", "event_refs"],
+        "properties": {
+          "finding_id": { "type": "string", "minLength": 1 },
+          "category": { "type": "string", "enum": ["instruction", "skill", "tool", "environment", "permission", "validation", "model", "observation_gap", "unknown"] },
+          "severity": { "type": "string", "enum": ["info", "warning", "error"] },
+          "summary": { "type": "string", "minLength": 1 },
+          "event_refs": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+          "evidence_refs": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+        }
+      }
+    },
+    "resource_usage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["duration_ms"],
+      "properties": {
+        "duration_ms": { "type": "integer", "minimum": 0 },
+        "preparation_ms": { "type": "integer", "minimum": 0 },
+        "reset_ms": { "type": "integer", "minimum": 0 },
+        "agent_ms": { "type": "integer", "minimum": 0 },
+        "validation_ms": { "type": "integer", "minimum": 0 },
+        "input_tokens": { "type": "integer", "minimum": 0 },
+        "output_tokens": { "type": "integer", "minimum": 0 },
+        "monetary_cost": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["amount", "currency"],
+          "properties": {
+            "amount": { "type": "number", "minimum": 0 },
+            "currency": { "type": "string", "pattern": "^[A-Z]{3}$" }
+          }
+        }
+      }
+    },
+    "nondeterminism": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sample_count", "single_run_evidence", "notes"],
+      "properties": {
+        "sample_count": { "type": "integer", "minimum": 1 },
+        "single_run_evidence": { "type": "boolean" },
+        "seed": { "type": ["integer", "string"] },
+        "notes": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+      }
+    },
+    "summary": { "type": "string", "minLength": 1 },
+    "extensions": { "type": "object", "additionalProperties": true }
+  },
+  "allOf": [
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "execution": {
+            "type": "object",
+            "properties": { "status": { "const": "completed" } },
+            "required": ["status"]
+          }
+        },
+        "required": ["execution"]
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "task_result": {
+            "type": "object",
+            "properties": { "status": { "enum": ["pass", "partial", "fail"] } }
+          }
+        }
+      },
+      "else": {
+        "type": "object",
+        "properties": {
+          "task_result": {
+            "type": "object",
+            "properties": { "status": { "const": "not_scored" } }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "nondeterminism": {
+            "type": "object",
+            "properties": { "sample_count": { "const": 1 } },
+            "required": ["sample_count"]
+          }
+        },
+        "required": ["nondeterminism"]
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "nondeterminism": {
+            "type": "object",
+            "properties": { "single_run_evidence": { "const": true } }
+          }
+        }
+      },
+      "else": {
+        "type": "object",
+        "properties": {
+          "nondeterminism": {
+            "type": "object",
+            "properties": { "single_run_evidence": { "const": false } }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "uuid": { "type": "string", "format": "uuid" },
+    "timestamp": { "type": "string", "format": "date-time" }
+  }
+}

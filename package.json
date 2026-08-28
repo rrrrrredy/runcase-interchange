@@ -1,0 +1,49 @@
+{
+  "name": "@agent-run-protocol/core",
+  "version": "0.1.0",
+  "description": "Versioned JSON Schemas and a validation CLI for portable agent runs, workflow cases, and scores.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "author": "Song Luo",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rrrrrredy/agent-run-protocol.git"
+  },
+  "bugs": "https://github.com/rrrrrredy/agent-run-protocol/issues",
+  "homepage": "https://github.com/rrrrrredy/agent-run-protocol#readme",
+  "bin": {
+    "arp": "./dist/src/cli.js"
+  },
+  "exports": {
+    ".": "./dist/src/index.js",
+    "./schemas/*": "./schemas/*"
+  },
+  "files": [
+    "dist/src",
+    "schemas",
+    "examples",
+    "docs",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepare": "npm run build",
+    "check": "npm run build && npm test && npm run validate:examples",
+    "test": "node --test dist/test/protocol.test.js",
+    "validate:examples": "node dist/src/cli.js validate examples",
+    "start": "node dist/src/cli.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "typescript": "^5.8.3"
+  }
+}

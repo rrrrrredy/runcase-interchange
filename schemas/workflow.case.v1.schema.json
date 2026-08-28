@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agent-run-protocol:schema:workflow.case.v1",
+  "title": "Workflow Case v1",
+  "description": "A portable definition of one resettable and objectively verifiable agent task.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "case_id",
+    "title",
+    "goal",
+    "variables",
+    "environment",
+    "allowed_tools",
+    "validators",
+    "provenance",
+    "safety",
+    "created_at"
+  ],
+  "properties": {
+    "schema_version": { "const": "workflow.case.v1" },
+    "case_id": { "$ref": "#/$defs/uuid" },
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "goal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "completion_summary"],
+      "properties": {
+        "text": { "type": "string", "minLength": 1 },
+        "completion_summary": { "type": "string", "minLength": 1 },
+        "external_ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "variables": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "value", "value_type", "source", "confirmed_by_user", "sensitive"],
+        "properties": {
+          "name": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$" },
+          "value": {},
+          "value_type": { "type": "string", "enum": ["string", "number", "boolean", "identifier", "path", "json"] },
+          "source": { "type": "string", "minLength": 1 },
+          "confirmed_by_user": { "type": "boolean" },
+          "sensitive": { "type": "boolean" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "summary", "build_ref", "digest", "initialize", "reset", "health_checks"],
+      "properties": {
+        "kind": { "type": "string", "enum": ["code", "workflow", "hybrid"] },
+        "summary": { "type": "string", "minLength": 1 },
+        "build_ref": { "type": "string", "minLength": 1 },
+        "digest": { "$ref": "#/$defs/sha256" },
+        "repository": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source_ref", "base_revision"],
+          "properties": {
+            "source_ref": { "type": "string", "minLength": 1 },
+            "base_revision": { "type": "string", "minLength": 1 },
+            "subdirectory": { "$ref": "#/$defs/relative_path" }
+          }
+        },
+        "initialize": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/lifecycle_step" } },
+        "reset": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/lifecycle_step" } },
+        "health_checks": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/lifecycle_step" } },
+        "start_urls": { "type": "array", "items": { "type": "string", "format": "uri" }, "uniqueItems": true },
+        "state_refs": { "type": "array", "items": { "$ref": "#/$defs/content_ref" }, "uniqueItems": true }
+      }
+    },
+    "allowed_tools": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "interface", "scopes"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "interface": { "type": "string", "enum": ["shell", "mcp", "browser", "file", "git", "other"] },
+          "scopes": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+          "configuration": { "type": "object", "additionalProperties": true }
+        }
+      }
+    },
+    "validators": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["validator_id", "name", "kind", "objective", "required", "weight", "executor_ref", "assertion"],
+        "properties": {
+          "validator_id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$" },
+          "name": { "type": "string", "minLength": 1 },
+          "kind": { "type": "string", "enum": ["command", "test", "git", "artifact", "api", "database", "composite", "manual"] },
+          "objective": { "type": "boolean" },
+          "required": { "type": "boolean" },
+          "weight": { "type": "number", "minimum": 0, "maximum": 1 },
+          "executor_ref": { "type": "string", "minLength": 1 },
+          "assertion": { "type": "object", "minProperties": 1, "additionalProperties": true },
+          "timeout_ms": { "type": "integer", "minimum": 1 },
+          "evidence_policy": { "type": "string", "enum": ["summary", "structured", "content_ref"] }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "source_refs", "confirmed_by_user"],
+      "properties": {
+        "kind": { "type": "string", "enum": ["repository_issue", "repository_commit", "recorded_workflow", "derived_variant", "hand_authored", "imported"] },
+        "source_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "ref"],
+            "properties": {
+              "kind": { "type": "string", "enum": ["repository", "commit", "issue", "pull_request", "demonstration", "case", "artifact", "other"] },
+              "ref": { "type": "string", "minLength": 1 },
+              "digest": { "$ref": "#/$defs/sha256" },
+              "captured_at": { "$ref": "#/$defs/timestamp" }
+            }
+          }
+        },
+        "parent_case_id": { "$ref": "#/$defs/uuid" },
+        "transformation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["recipe", "parameters", "patch_ref"],
+          "properties": {
+            "recipe": { "type": "string", "minLength": 1 },
+            "parameters": { "type": "object", "additionalProperties": true },
+            "patch_ref": { "$ref": "#/$defs/content_ref" },
+            "notes": { "type": "string" }
+          }
+        },
+        "confirmed_by_user": { "type": "boolean" },
+        "notes": { "type": "string" }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["network", "writable_paths", "denied_paths", "secret_refs", "timeout_ms", "resource_limits"],
+      "properties": {
+        "network": { "type": "string", "enum": ["disabled", "allowlist", "unrestricted"] },
+        "network_allowlist": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "writable_paths": { "type": "array", "items": { "$ref": "#/$defs/relative_path" }, "uniqueItems": true },
+        "denied_paths": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "secret_refs": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "timeout_ms": { "type": "integer", "minimum": 1 },
+        "resource_limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["cpu_count", "memory_mb", "disk_mb"],
+          "properties": {
+            "cpu_count": { "type": "number", "exclusiveMinimum": 0 },
+            "memory_mb": { "type": "integer", "minimum": 64 },
+            "disk_mb": { "type": "integer", "minimum": 64 },
+            "process_count": { "type": "integer", "minimum": 1 }
+          }
+        }
+      }
+    },
+    "created_at": { "$ref": "#/$defs/timestamp" },
+    "labels": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+    "extensions": { "type": "object", "additionalProperties": true }
+  },
+  "allOf": [
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "safety": {
+            "type": "object",
+            "properties": { "network": { "const": "allowlist" } },
+            "required": ["network"]
+          }
+        },
+        "required": ["safety"]
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "safety": {
+            "type": "object",
+            "required": ["network_allowlist"],
+            "properties": { "network_allowlist": { "type": "array", "minItems": 1 } }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "provenance": {
+            "type": "object",
+            "properties": { "kind": { "const": "derived_variant" } },
+            "required": ["kind"]
+          }
+        },
+        "required": ["provenance"]
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "provenance": {
+            "type": "object",
+            "required": ["parent_case_id", "transformation"],
+            "properties": {
+              "parent_case_id": { "$ref": "#/$defs/uuid" },
+              "transformation": { "type": "object" }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "uuid": { "type": "string", "format": "uuid" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "relative_path": { "type": "string", "minLength": 1, "not": { "pattern": "^(?:[A-Za-z]:[\\\\/]|[\\\\/])" } },
+    "content_ref": { "type": "string", "pattern": "^(?:sha256:[0-9a-f]{64}|urn:[A-Za-z0-9][A-Za-z0-9:._/-]*)$" },
+    "lifecycle_step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["step_id", "kind", "executor_ref", "timeout_ms"],
+      "properties": {
+        "step_id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$" },
+        "kind": { "type": "string", "enum": ["command", "snapshot", "database", "container", "http", "file", "other"] },
+        "executor_ref": { "type": "string", "minLength": 1 },
+        "parameters": { "type": "object", "additionalProperties": true },
+        "timeout_ms": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "schema_version": "workflow.case.v1",
+  "case_id": "44444444-4444-4444-8444-444444444444",
+  "title": "Resolve an issue through a linked pull request",
+  "description": "A recorded local Issue-to-PR workflow backed by simulator and repository state.",
+  "goal": {
+    "text": "Read issue APP-42, make the requested repository change, create a linked pull request, and move the issue to In Review.",
+    "completion_summary": "The code test passes, a pull request from the allowed branch links APP-42, and the issue is In Review.",
+    "external_ref": "simulator:issue:APP-42"
+  },
+  "variables": [
+    {
+      "name": "issue_key",
+      "value": "APP-42",
+      "value_type": "identifier",
+      "source": "demonstration:demo-issue-pr-1/entity/issue",
+      "confirmed_by_user": true,
+      "sensitive": false
+    },
+    {
+      "name": "target_status",
+      "value": "in_review",
+      "value_type": "identifier",
+      "source": "demonstration:demo-issue-pr-1/state-transition/5",
+      "confirmed_by_user": true,
+      "sensitive": false
+    }
+  ],
+  "environment": {
+    "kind": "hybrid",
+    "summary": "A repository container plus a local Issue/PR simulator with a fresh SQLite snapshot.",
+    "build_ref": "environment-build:issue-pr-simulator/0.1.0",
+    "digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+    "repository": {
+      "source_ref": "urn:local-repository:sample-webapp",
+      "base_revision": "abcdef0123456789abcdef0123456789abcdef01"
+    },
+    "initialize": [
+      {
+        "step_id": "start-simulator",
+        "kind": "container",
+        "executor_ref": "simulator.start.v1",
+        "parameters": { "snapshot": "issue-pr-base" },
+        "timeout_ms": 60000
+      }
+    ],
+    "reset": [
+      {
+        "step_id": "restore-database",
+        "kind": "database",
+        "executor_ref": "sqlite.snapshot.restore.v1",
+        "parameters": { "snapshot_ref": "sha256:4444444444444444444444444444444444444444444444444444444444444444" },
+        "timeout_ms": 10000
+      },
+      {
+        "step_id": "restore-repository",
+        "kind": "snapshot",
+        "executor_ref": "repository.snapshot.restore.v1",
+        "parameters": { "revision": "abcdef0123456789abcdef0123456789abcdef01" },
+        "timeout_ms": 30000
+      }
+    ],
+    "health_checks": [
+      {
+        "step_id": "simulator-health",
+        "kind": "http",
+        "executor_ref": "http.status.v1",
+        "parameters": { "url": "http://127.0.0.1:43121/health", "status": 200 },
+        "timeout_ms": 5000
+      }
+    ],
+    "start_urls": ["http://127.0.0.1:43121/issues/APP-42"],
+    "state_refs": ["sha256:4444444444444444444444444444444444444444444444444444444444444444"]
+  },
+  "allowed_tools": [
+    { "name": "simulator-browser", "interface": "browser", "scopes": ["http://127.0.0.1:43121"] },
+    { "name": "simulator-mcp", "interface": "mcp", "scopes": ["issues:read", "issues:update", "pull_requests:create"] },
+    { "name": "shell", "interface": "shell", "scopes": ["/workspace"] },
+    { "name": "git", "interface": "git", "scopes": ["status", "diff", "commit"] }
+  ],
+  "validators": [
+    {
+      "validator_id": "code-tests",
+      "name": "Repository regression tests",
+      "kind": "test",
+      "objective": true,
+      "required": true,
+      "weight": 0.5,
+      "executor_ref": "command.exec.v1",
+      "assertion": { "argv": ["npm", "test", "--", "issue-42"], "exit_code": 0 },
+      "timeout_ms": 120000,
+      "evidence_policy": "structured"
+    },
+    {
+      "validator_id": "issue-pr-state",
+      "name": "Issue and pull request database state",
+      "kind": "database",
+      "objective": true,
+      "required": true,
+      "weight": 0.5,
+      "executor_ref": "simulator.issue-pr-state.v1",
+      "assertion": { "issue": "APP-42", "status": "in_review", "linked_pr": true, "pr_target": "main" },
+      "timeout_ms": 5000,
+      "evidence_policy": "structured"
+    }
+  ],
+  "provenance": {
+    "kind": "recorded_workflow",
+    "source_refs": [
+      {
+        "kind": "demonstration",
+        "ref": "demo-issue-pr-1",
+        "digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+        "captured_at": "2026-08-28T03:00:00Z"
+      },
+      { "kind": "repository", "ref": "urn:local-repository:sample-webapp" }
+    ],
+    "confirmed_by_user": true,
+    "notes": "Variables and final-state assertions were confirmed after recording."
+  },
+  "safety": {
+    "network": "allowlist",
+    "network_allowlist": ["127.0.0.1:43121"],
+    "writable_paths": ["src", "tests"],
+    "denied_paths": [".git/config", ".env", "simulator-data", "validators"],
+    "secret_refs": [],
+    "timeout_ms": 1200000,
+    "resource_limits": { "cpu_count": 2, "memory_mb": 3072, "disk_mb": 6144, "process_count": 128 }
+  },
+  "created_at": "2026-08-28T03:15:00Z",
+  "labels": ["workflow", "issue-to-pr", "recorded"]
+}

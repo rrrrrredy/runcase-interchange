@@ -1,0 +1,100 @@
+{
+  "schema_version": "agent.run.v1",
+  "run_id": "22222222-2222-4222-8222-222222222222",
+  "case_id": "33333333-3333-4333-8333-333333333333",
+  "goal": {
+    "text": "Make the parser preserve an escaped delimiter and pass the focused test.",
+    "source": "case"
+  },
+  "agent": {
+    "product": "codex",
+    "product_version": "app-server-2026.08",
+    "adapter_version": "runtime-evolution-workbench/0.1.0",
+    "model": "configured-by-user",
+    "model_provider": "openai"
+  },
+  "configuration": {
+    "snapshot_id": "cfg-parser-candidate",
+    "files": [
+      {
+        "path": "AGENTS.md",
+        "digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "kind": "agents",
+        "content_ref": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    ],
+    "working_directory": "D:\\Codex\\_worktrees\\parser-candidate",
+    "git_commit": "0123456789abcdef0123456789abcdef01234567",
+    "permissions": ["workspace-write"],
+    "allowed_tools": ["shell", "apply_patch"],
+    "environment": { "isolation": "git-worktree" }
+  },
+  "started_at": "2026-08-28T02:00:00Z",
+  "ended_at": "2026-08-28T02:03:00Z",
+  "status": "succeeded",
+  "capture": {
+    "mode": "managed",
+    "sources": [
+      { "name": "codex-app-server", "version": "2026.08", "status": "available" }
+    ],
+    "completeness": "complete",
+    "gaps": [],
+    "redaction": {
+      "status": "not_needed",
+      "secret_patterns_applied": ["bearer-token", "api-key"],
+      "excluded_paths": [".env"],
+      "redacted_field_count": 0
+    }
+  },
+  "events": [
+    {
+      "event_id": "managed-evt-1",
+      "sequence": 0,
+      "timestamp": "2026-08-28T02:00:00Z",
+      "received_at": "2026-08-28T02:00:00.010Z",
+      "type": "turn.started",
+      "source": "codex-app-server",
+      "summary": "Managed comparison turn started.",
+      "data": {},
+      "content_refs": [],
+      "redacted": false
+    },
+    {
+      "event_id": "managed-evt-2",
+      "sequence": 1,
+      "timestamp": "2026-08-28T02:02:30Z",
+      "received_at": "2026-08-28T02:02:30.020Z",
+      "type": "verification.completed",
+      "source": "codex-app-server",
+      "parent_event_id": "managed-evt-1",
+      "summary": "The focused parser test passed.",
+      "data": { "exit_code": 0, "tests_passed": 1 },
+      "content_refs": ["sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"],
+      "redacted": false
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "artifact-patch",
+      "kind": "patch",
+      "name": "parser-fix.patch",
+      "digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "media_type": "text/x-diff",
+      "content_ref": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "produced_by_event_id": "managed-evt-2",
+      "redacted": false
+    }
+  ],
+  "outcome": {
+    "status": "success",
+    "summary": "The focused parser test passed and the patch stayed within the allowed files.",
+    "verifier_refs": ["parser-unit-test", "allowed-paths"]
+  },
+  "user_corrections": [],
+  "resource_usage": {
+    "duration_ms": 180000,
+    "input_tokens": 7200,
+    "output_tokens": 1100,
+    "monetary_cost": { "amount": 0, "currency": "USD" }
+  }
+}

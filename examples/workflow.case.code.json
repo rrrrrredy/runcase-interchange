@@ -1,0 +1,112 @@
+{
+  "schema_version": "workflow.case.v1",
+  "case_id": "33333333-3333-4333-8333-333333333333",
+  "title": "Preserve an escaped parser delimiter",
+  "description": "A repository-derived code case with a focused regression test and path safety rule.",
+  "goal": {
+    "text": "Fix the parser so an escaped delimiter remains part of the token and pass the focused regression test.",
+    "completion_summary": "The focused test and the existing parser suite pass, with changes limited to the parser package.",
+    "external_ref": "local-issue:parser-17"
+  },
+  "variables": [
+    {
+      "name": "delimiter",
+      "value": "|",
+      "value_type": "string",
+      "source": "tests/fixtures/escaped-delimiter.txt:1",
+      "confirmed_by_user": true,
+      "sensitive": false,
+      "description": "The delimiter exercised by this base case."
+    }
+  ],
+  "environment": {
+    "kind": "code",
+    "summary": "Node parser repository in an isolated Docker container.",
+    "build_ref": "dockerfile:environments/parser/Dockerfile",
+    "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "repository": {
+      "source_ref": "urn:local-repository:sample-parser",
+      "base_revision": "0123456789abcdef0123456789abcdef01234567"
+    },
+    "initialize": [
+      {
+        "step_id": "create-container",
+        "kind": "container",
+        "executor_ref": "docker.create.v1",
+        "parameters": { "network": "none", "workdir": "/workspace" },
+        "timeout_ms": 60000
+      }
+    ],
+    "reset": [
+      {
+        "step_id": "fresh-repository-layer",
+        "kind": "snapshot",
+        "executor_ref": "repository.snapshot.restore.v1",
+        "parameters": { "revision": "0123456789abcdef0123456789abcdef01234567" },
+        "timeout_ms": 30000
+      }
+    ],
+    "health_checks": [
+      {
+        "step_id": "node-ready",
+        "kind": "command",
+        "executor_ref": "command.exec.v1",
+        "parameters": { "argv": ["node", "--version"] },
+        "timeout_ms": 5000
+      }
+    ],
+    "state_refs": ["sha256:2222222222222222222222222222222222222222222222222222222222222222"]
+  },
+  "allowed_tools": [
+    { "name": "shell", "interface": "shell", "scopes": ["/workspace"] },
+    { "name": "file-editor", "interface": "file", "scopes": ["packages/parser", "tests/parser"] },
+    { "name": "git", "interface": "git", "scopes": ["status", "diff"] }
+  ],
+  "validators": [
+    {
+      "validator_id": "parser-unit-test",
+      "name": "Focused escaped delimiter regression test",
+      "kind": "test",
+      "objective": true,
+      "required": true,
+      "weight": 0.8,
+      "executor_ref": "command.exec.v1",
+      "assertion": { "argv": ["npm", "test", "--", "escaped-delimiter"], "exit_code": 0 },
+      "timeout_ms": 120000,
+      "evidence_policy": "structured"
+    },
+    {
+      "validator_id": "allowed-paths",
+      "name": "Only parser files may change",
+      "kind": "git",
+      "objective": true,
+      "required": true,
+      "weight": 0.2,
+      "executor_ref": "git.changed-paths.v1",
+      "assertion": { "allow": ["packages/parser/**", "tests/parser/**"] },
+      "timeout_ms": 5000,
+      "evidence_policy": "structured"
+    }
+  ],
+  "provenance": {
+    "kind": "repository_issue",
+    "source_refs": [
+      { "kind": "repository", "ref": "urn:local-repository:sample-parser", "captured_at": "2026-08-28T00:00:00Z" },
+      { "kind": "commit", "ref": "0123456789abcdef0123456789abcdef01234567" },
+      { "kind": "issue", "ref": "local-issue:parser-17" },
+      { "kind": "commit", "ref": "89abcdef0123456789abcdef0123456789abcdef" }
+    ],
+    "confirmed_by_user": true,
+    "notes": "The last commit reference is the user-confirmed correct state and is not mounted into agent runs."
+  },
+  "safety": {
+    "network": "disabled",
+    "writable_paths": ["packages/parser", "tests/parser"],
+    "denied_paths": [".git", ".env", "validators"],
+    "secret_refs": [],
+    "timeout_ms": 900000,
+    "resource_limits": { "cpu_count": 2, "memory_mb": 2048, "disk_mb": 4096, "process_count": 128 }
+  },
+  "created_at": "2026-08-28T00:10:00Z",
+  "labels": ["code", "parser", "base-case"]
+}

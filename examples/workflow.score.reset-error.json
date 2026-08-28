@@ -1,0 +1,48 @@
+{
+  "schema_version": "workflow.score.v1",
+  "score_id": "66666666-6666-4666-8666-666666666666",
+  "run_id": "77777777-7777-4777-8777-777777777777",
+  "case_id": "44444444-4444-4444-8444-444444444444",
+  "configuration_snapshot_id": "cfg-issue-pr-baseline",
+  "protocol_versions": {
+    "run": "agent.run.v1",
+    "case": "workflow.case.v1",
+    "score": "workflow.score.v1"
+  },
+  "created_at": "2026-08-28T04:00:12Z",
+  "execution": {
+    "status": "reset_error",
+    "started_at": "2026-08-28T04:00:00Z",
+    "ended_at": "2026-08-28T04:00:12Z",
+    "failure_stage": "resetting",
+    "details": "The simulator database snapshot could not be restored."
+  },
+  "task_result": {
+    "status": "not_scored",
+    "reason": "The Agent never started because environment reset failed."
+  },
+  "validations": [],
+  "trace_findings": [
+    {
+      "finding_id": "finding-reset-1",
+      "category": "environment",
+      "severity": "error",
+      "summary": "Database reset failed before the Agent started.",
+      "event_refs": [],
+      "evidence_refs": ["reset-log:run-7777"]
+    }
+  ],
+  "resource_usage": {
+    "duration_ms": 12000,
+    "preparation_ms": 2000,
+    "reset_ms": 10000,
+    "agent_ms": 0,
+    "validation_ms": 0
+  },
+  "nondeterminism": {
+    "sample_count": 1,
+    "single_run_evidence": true,
+    "notes": ["No task result exists because infrastructure failed before execution."]
+  },
+  "summary": "Infrastructure reset failed; this is not an Agent task failure."
+}
