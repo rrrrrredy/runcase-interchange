@@ -24,6 +24,22 @@ node dist/src/cli.js validate examples/agent.run.observed.json --json
 
 The CLI exits with `0` when every document is valid, `1` when at least one document is invalid, and `2` for usage or I/O errors.
 
+## Install a tagged release
+
+Version 0.1 is distributed through this repository's GitHub Releases, not the public npm registry. Do not infer registry ownership from the package name.
+
+Download `agent-run-protocol-core-0.1.0.tgz` and `SHA256SUMS.txt` from the same release, verify the tarball, then install the exact file or release URL:
+
+```powershell
+$expected = (Get-Content .\SHA256SUMS.txt | Where-Object { $_ -match 'agent-run-protocol-core-0.1.0.tgz$' }).Split()[0]
+$actual = (Get-FileHash .\agent-run-protocol-core-0.1.0.tgz -Algorithm SHA256).Hash.ToLowerInvariant()
+if ($actual -ne $expected) { throw 'Agent Run Protocol package checksum mismatch.' }
+npm install .\agent-run-protocol-core-0.1.0.tgz
+.\node_modules\.bin\arp schemas
+```
+
+`agent-run-protocol-schemas-0.1.0.zip` is the language-neutral distribution. `release-manifest.json` binds both archives to the source commit, and GitHub publishes build-provenance attestations for the release assets.
+
 ## Compatibility policy
 
 The npm package follows semantic versioning. Each document also carries a stable `schema_version` discriminator.
