@@ -18,10 +18,10 @@ Observed result:
 Packaging check:
 
 ```powershell
-npm pack --dry-run
+.\scripts\Package-Release.ps1 -Version 0.1.0
 ```
 
-The dry run contained 19 files and produced an 18.1 kB package: runtime JS/type declarations, three schemas, six examples, documentation, README, license, notice, and package metadata. Test sources and local dependencies were not included.
+The current release-candidate pack contained 19 files, about 19 kB compressed and 79 kB unpacked: runtime JS/type declarations, three schemas, six examples, documentation, README, license, notice, and package metadata. Test sources and local dependencies were not included.
 
 Release packaging produced:
 
