@@ -15,7 +15,7 @@ The protocol intentionally distinguishes a **Run** from a **Trace**: a Run is th
 Requires Node.js 20 or later. The two product implementations may impose a newer runtime independently.
 
 ```powershell
-npm install
+npm ci
 npm run check
 node dist/src/cli.js schemas
 node dist/src/cli.js validate examples
