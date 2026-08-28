@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-- Cross-language consumer fixtures and additional implementation reports pending.
+- Independent third-party implementation reports remain pending.
 - Reproducible release assets now include package/schema archives, SHA-256 checksums, a commit manifest, and GitHub provenance attestations.
 - CI covers both supported Node.js 20 and Node.js 22 runtimes.
 

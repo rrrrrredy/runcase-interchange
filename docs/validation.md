@@ -1,6 +1,6 @@
 # Validation evidence
 
-Validated locally on 2026-08-28 with Node.js 20.19.1 and npm 10.8.2 on Windows.
+Validated locally on 2026-08-28 with Node.js 20.19.1 and Node.js 22.23.2 on Windows.
 
 Command:
 
@@ -21,6 +21,19 @@ Packaging check:
 npm pack --dry-run
 ```
 
-The dry run contained 17 files: runtime JS/type declarations, three schemas, six examples, documentation, README, license, and package metadata. Test sources and local dependencies were not included.
+The dry run contained 19 files and produced an 18.1 kB package: runtime JS/type declarations, three schemas, six examples, documentation, README, license, notice, and package metadata. Test sources and local dependencies were not included.
 
-This proves schema and CLI behavior on the stated host. It does not yet prove interoperability inside either product, which remains a later acceptance item.
+Release packaging produced:
+
+- `agent-run-protocol-core-0.1.0.tgz`;
+- `agent-run-protocol-schemas-0.1.0.zip`;
+- a commit-bound `release-manifest.json`;
+- `SHA256SUMS.txt`, independently rehashed with all three entries matching.
+
+## Product interoperability evidence
+
+- Workflow Environment Factory's Python consumer validates and imports a synthetic `agent.run.v1`, redacts an inline secret, preserves structural fields, and deduplicates the canonical document.
+- Runtime Evolution Workbench's TypeScript consumer validates and imports a standard `workflow.case.v1`, preserves `secret_refs`, and deduplicates the canonical document.
+- The Runtime import was also exercised through the real loopback service and browser file picker: one Case appeared in the protocol library, the empty-Run boundary remained visible, and the browser reported no console or page errors.
+
+These are sibling implementation results on the stated host, not evidence of independent third-party adoption. Fresh Windows installation and public-release CI remain separate gates.
