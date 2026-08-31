@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-08-31
+
+- Reject Windows drive-relative portable paths such as `C:outside`; resolving them on Windows can escape a consumer's intended root even though they do not start with a slash.
+
 ## [0.1.1] - 2026-08-31
 
 - Reject `.` and `..` path segments in portable relative paths.

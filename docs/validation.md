@@ -18,15 +18,15 @@ Observed result:
 Packaging check:
 
 ```powershell
-.\scripts\Package-Release.ps1 -Version 0.1.1
+.\scripts\Package-Release.ps1 -Version 0.1.2
 ```
 
 The current release-candidate pack contained 19 files, about 19 kB compressed and 79 kB unpacked: runtime JS/type declarations, three schemas, six examples, documentation, README, license, notice, and package metadata. Test sources and local dependencies were not included.
 
 Release packaging produced:
 
-- `runcase-interchange-0.1.1.tgz`;
-- `runcase-interchange-schemas-0.1.1.zip`;
+- `runcase-interchange-0.1.2.tgz`;
+- `runcase-interchange-schemas-0.1.2.zip`;
 - a commit-bound `release-manifest.json`;
 - `SHA256SUMS.txt`, independently rehashed with all three entries matching.
 

@@ -30,17 +30,17 @@ Version 0.1 is distributed through this repository's GitHub Releases, not the pu
 
 The `v0.1.x` line is published as a GitHub prerelease while the contracts receive their first independent consumer feedback. Consumers should pin both the release version and archive integrity rather than following a mutable branch.
 
-Download `runcase-interchange-0.1.1.tgz` and `SHA256SUMS.txt` from the same release, verify the tarball, then install the exact file or release URL:
+Download `runcase-interchange-0.1.2.tgz` and `SHA256SUMS.txt` from the same release, verify the tarball, then install the exact file or release URL:
 
 ```powershell
-$expected = (Get-Content .\SHA256SUMS.txt | Where-Object { $_ -match 'runcase-interchange-0.1.1.tgz$' }).Split()[0]
-$actual = (Get-FileHash .\runcase-interchange-0.1.1.tgz -Algorithm SHA256).Hash.ToLowerInvariant()
+$expected = (Get-Content .\SHA256SUMS.txt | Where-Object { $_ -match 'runcase-interchange-0.1.2.tgz$' }).Split()[0]
+$actual = (Get-FileHash .\runcase-interchange-0.1.2.tgz -Algorithm SHA256).Hash.ToLowerInvariant()
 if ($actual -ne $expected) { throw 'RunCase Interchange package checksum mismatch.' }
-npm install .\runcase-interchange-0.1.1.tgz
+npm install .\runcase-interchange-0.1.2.tgz
 .\node_modules\.bin\rci schemas
 ```
 
-`runcase-interchange-schemas-0.1.1.zip` is the language-neutral distribution. `release-manifest.json` binds both archives to the source commit, and GitHub publishes build-provenance attestations for the release assets.
+`runcase-interchange-schemas-0.1.2.zip` is the language-neutral distribution. `release-manifest.json` binds both archives to the source commit, and GitHub publishes build-provenance attestations for the release assets.
 
 ## Compatibility policy
 
@@ -50,7 +50,7 @@ The npm package follows semantic versioning. Each document also carries a stable
 - New required properties, removed meanings, or incompatible enum changes require a new schema identifier such as `agent.run.v2` and a package major version.
 - Consumers must preserve unknown extension properties under the explicit `extensions` object. Top-level unknown properties are rejected so accidental misspellings do not silently become protocol data.
 - Timestamps use RFC 3339 date-time strings. Content hashes use lowercase SHA-256 prefixed by `sha256:`.
-- Portable paths cannot be absolute and cannot contain `.` or `..` segments. Schema validity is not a filesystem sandbox: consumers must still canonicalize a joined path and prove it remains under the intended root before reading, writing, or deleting.
+- Portable paths cannot be absolute, Windows drive-relative, or contain `.` or `..` segments. Schema validity is not a filesystem sandbox: consumers must still canonicalize a joined path and prove it remains under the intended root before reading, writing, or deleting.
 
 ## Privacy contract
 

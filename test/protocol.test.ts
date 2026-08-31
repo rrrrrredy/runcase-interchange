@@ -48,7 +48,7 @@ test("infrastructure errors cannot be scored as task passes", () => {
   assert.ok(result.errors.some((error) => error.instancePath === "/task_result/status"));
 });
 
-test("portable writable paths cannot be absolute Windows paths", () => {
+test("portable writable paths reject absolute and drive-relative Windows paths", () => {
   const workflowCase = readJson(join(exampleDirectory, "workflow.case.code.json")) as {
     safety: { writable_paths: string[] };
   };
@@ -56,6 +56,11 @@ test("portable writable paths cannot be absolute Windows paths", () => {
   const result = new ProtocolValidator().validate(workflowCase);
   assert.equal(result.valid, false);
   assert.ok(result.errors.some((error) => error.instancePath.includes("writable_paths")));
+
+  workflowCase.safety.writable_paths = ["C:outside"];
+  const driveRelative = new ProtocolValidator().validate(workflowCase);
+  assert.equal(driveRelative.valid, false);
+  assert.ok(driveRelative.errors.some((error) => error.instancePath.includes("writable_paths")));
 });
 
 test("portable paths reject parent traversal and dot segments", () => {
