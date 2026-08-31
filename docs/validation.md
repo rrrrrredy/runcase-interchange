@@ -11,22 +11,22 @@ npm run check
 Observed result:
 
 - TypeScript build completed.
-- 8 protocol regression tests passed.
+- 9 protocol regression tests passed.
 - 6 of 6 shipped examples passed the standalone CLI.
-- Negative cases cover missing schema versions, unknown top-level fields, task/infrastructure result separation, absolute portable paths, missing observation gaps, missing variant provenance, and incorrect single-run evidence labels.
+- Negative cases cover missing schema versions, unknown top-level fields, task/infrastructure result separation, absolute and traversing portable paths, missing observation gaps, missing variant provenance, and incorrect single-run evidence labels.
 
 Packaging check:
 
 ```powershell
-.\scripts\Package-Release.ps1 -Version 0.1.0
+.\scripts\Package-Release.ps1 -Version 0.1.1
 ```
 
 The current release-candidate pack contained 19 files, about 19 kB compressed and 79 kB unpacked: runtime JS/type declarations, three schemas, six examples, documentation, README, license, notice, and package metadata. Test sources and local dependencies were not included.
 
 Release packaging produced:
 
-- `runcase-interchange-0.1.0.tgz`;
-- `runcase-interchange-schemas-0.1.0.zip`;
+- `runcase-interchange-0.1.1.tgz`;
+- `runcase-interchange-schemas-0.1.1.zip`;
 - a commit-bound `release-manifest.json`;
 - `SHA256SUMS.txt`, independently rehashed with all three entries matching.
 

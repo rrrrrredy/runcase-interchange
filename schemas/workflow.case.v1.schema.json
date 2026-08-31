@@ -232,7 +232,14 @@
     "uuid": { "type": "string", "format": "uuid" },
     "timestamp": { "type": "string", "format": "date-time" },
     "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
-    "relative_path": { "type": "string", "minLength": 1, "not": { "pattern": "^(?:[A-Za-z]:[\\\\/]|[\\\\/])" } },
+    "relative_path": {
+      "type": "string",
+      "minLength": 1,
+      "allOf": [
+        { "not": { "pattern": "^(?:[A-Za-z]:[\\\\/]|[\\\\/])" } },
+        { "not": { "pattern": "(?:^|[\\\\/])\\.{1,2}(?:[\\\\/]|$)" } }
+      ]
+    },
     "content_ref": { "type": "string", "pattern": "^(?:sha256:[0-9a-f]{64}|urn:[A-Za-z0-9][A-Za-z0-9:._/-]*)$" },
     "lifecycle_step": {
       "type": "object",
