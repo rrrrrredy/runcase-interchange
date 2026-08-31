@@ -2,6 +2,15 @@
 
 RunCase Interchange is the only shared contract between Runtime Evolution Workbench and Workflow Environment Factory. It defines portable Run, Case, and Score JSON records; it does not provide a database, queue, UI, runner, environment, or product service.
 
+## Which repository should I use?
+
+| What you want to do | Start here |
+| --- | --- |
+| Keep, diagnose, compare, and safely apply one Codex capability-file change | [Runtime Evolution Workbench](https://github.com/rrrrrredy/runtime-evolution-workbench) |
+| Build and inspect resettable workflow Cases; run Codex only where the isolation gate passes | [Workflow Environment Factory](https://github.com/rrrrrredy/workflow-environment-factory) |
+| Capture DeepSeek Harness SDK Runs as portable evidence | [DeepSeek Harness RunCase Adapter](https://github.com/rrrrrredy/deepseek-harness-runcase-adapter) |
+| Validate or implement portable Run, Case, and Score files | [RunCase Interchange](https://github.com/rrrrrredy/runcase-interchange) |
+
 ## Schemas
 
 - `agent.run.v1`: one real agent execution, its observed events, artifacts, outcome, user corrections, redaction state, and observation gaps.
@@ -51,6 +60,7 @@ The npm package follows semantic versioning. Each document also carries a stable
 - Consumers must preserve unknown extension properties under the explicit `extensions` object. Top-level unknown properties are rejected so accidental misspellings do not silently become protocol data.
 - Timestamps use RFC 3339 date-time strings. Content hashes use lowercase SHA-256 prefixed by `sha256:`.
 - Portable paths cannot be absolute, Windows drive-relative, or contain `.` or `..` segments. Schema validity is not a filesystem sandbox: consumers must still canonicalize a joined path and prove it remains under the intended root before reading, writing, or deleting.
+- Filesystem consumers must also reject platform-special spellings after normalization, including Windows device names, alternate-data-stream separators, NUL bytes, trailing-dot/space aliases, and case or Unicode collisions that their target filesystem treats as the same path.
 
 ## Privacy contract
 
