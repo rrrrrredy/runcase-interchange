@@ -58,6 +58,24 @@ test("portable writable paths cannot be absolute Windows paths", () => {
   assert.ok(result.errors.some((error) => error.instancePath.includes("writable_paths")));
 });
 
+test("portable paths reject parent traversal and dot segments", () => {
+  const workflowCase = readJson(join(exampleDirectory, "workflow.case.code.json")) as {
+    safety: { writable_paths: string[] };
+  };
+  workflowCase.safety.writable_paths = ["safe/../outside"];
+  const caseResult = new ProtocolValidator().validate(workflowCase);
+  assert.equal(caseResult.valid, false);
+  assert.ok(caseResult.errors.some((error) => error.instancePath.includes("writable_paths")));
+
+  const run = readJson(join(exampleDirectory, "agent.run.managed.json")) as {
+    configuration: { files: Array<{ path: string }> };
+  };
+  run.configuration.files[0]!.path = ".\\AGENTS.md";
+  const runResult = new ProtocolValidator().validate(run);
+  assert.equal(runResult.valid, false);
+  assert.ok(runResult.errors.some((error) => error.instancePath.includes("/configuration/files/0/path")));
+});
+
 test("partial capture must describe at least one observation gap", () => {
   const run = readJson(join(exampleDirectory, "agent.run.observed.json")) as {
     capture: { gaps: unknown[] };

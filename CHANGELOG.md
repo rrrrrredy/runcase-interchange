@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-08-31
+
+- Reject `.` and `..` path segments in portable relative paths.
+- Apply the portable relative-path contract to Run artifact paths.
+- Document that consumers must canonicalize and enforce root containment even after schema validation.
+
 - GitHub tag releases now require curated, version-matched adoption notes and are labeled prereleases instead of presenting generated commit summaries as product documentation.
 - Added a public support boundary for usage questions, schema proposals, bug reports, and sensitive Run data.
 - Independent third-party implementation reports remain pending.
