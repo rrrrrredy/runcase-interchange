@@ -24,40 +24,44 @@ function usage(): string {
     "",
     "Usage:",
     "  rci schemas [--json]",
-    "  rci validate <file-or-directory>... [--schema <version>] [--json]",
+    "  rci validate <file-or-directory>... [--schema <version>] [--semantic] [--json]",
     "",
     "Directories are scanned recursively for .json files.",
   ].join("\n");
 }
 
-function collectJsonFiles(inputPath: string): string[] {
+function collectJsonFiles(inputPath: string, ioErrors: Map<string, FileResult>): string[] {
   const absolutePath = resolve(inputPath);
-  const status = statSync(absolutePath);
-  if (status.isFile()) {
-    return [absolutePath];
-  }
-  if (!status.isDirectory()) {
+  try {
+    const status = statSync(absolutePath);
+    if (status.isFile()) return [absolutePath];
+    if (!status.isDirectory()) return [];
+    return readdirSync(absolutePath, { withFileTypes: true })
+      .sort((left, right) => left.name.localeCompare(right.name))
+      .flatMap(entry => {
+        const child = resolve(absolutePath, entry.name);
+        if (entry.isDirectory()) return collectJsonFiles(child, ioErrors);
+        return entry.isFile() && entry.name.endsWith(".json") ? [child] : [];
+      });
+  } catch (error) {
+    ioErrors.set(absolutePath, ioFailure(absolutePath, error));
     return [];
   }
 
-  return readdirSync(absolutePath, { withFileTypes: true })
-    .sort((left, right) => left.name.localeCompare(right.name))
-    .flatMap((entry) => {
-      const child = resolve(absolutePath, entry.name);
-      if (entry.isDirectory()) {
-        return collectJsonFiles(child);
-      }
-      return entry.isFile() && entry.name.endsWith(".json") ? [child] : [];
-    });
 }
 
-function parseOptions(args: string[]): { json: boolean; schema?: SchemaVersion; paths: string[] } {
+function parseOptions(args: string[]): { json: boolean; semantic: boolean; schema?: SchemaVersion; paths: string[] } {
   let json = false;
+  let semantic = false;
   let schema: SchemaVersion | undefined;
   const paths: string[] = [];
 
   for (let index = 0; index < args.length; index += 1) {
     const argument = args[index];
+    if (argument === "--semantic") {
+      semantic = true;
+      continue;
+    }
     if (argument === "--json") {
       json = true;
       continue;
@@ -79,27 +83,28 @@ function parseOptions(args: string[]): { json: boolean; schema?: SchemaVersion; 
     }
   }
 
-  return schema === undefined ? { json, paths } : { json, schema, paths };
+  return schema === undefined ? { json, semantic, paths } : { json, semantic, schema, paths };
+}
+
+function ioFailure(file: string, error: unknown): FileResult {
+  return { file, valid: false, errors: [], ioError: error instanceof Error ? error.message : String(error) };
 }
 
 function validateFile(file: string, validator: ProtocolValidator, schema?: SchemaVersion): FileResult {
+  let text: string;
   try {
-    const document = JSON.parse(readFileSync(file, "utf8")) as unknown;
-    const result = validator.validate(document, schema);
-    return {
-      file,
-      valid: result.valid,
-      ...(result.schemaVersion === undefined ? {} : { schemaVersion: result.schemaVersion }),
-      errors: result.errors,
-    };
+    text = readFileSync(file, "utf8");
   } catch (error) {
-    return {
-      file,
-      valid: false,
-      errors: [],
-      ioError: error instanceof Error ? error.message : String(error),
-    };
+    return ioFailure(file, error);
   }
+  let document: unknown;
+  try {
+    document = JSON.parse(text);
+  } catch (error) {
+    if (!(error instanceof SyntaxError)) throw error;
+    return { file, valid: false, errors: [{ instancePath: "", schemaPath: "", keyword: "parse", message: error.message, params: {} }] };
+  }
+  return { file, ...validator.validate(document, schema) };
 }
 
 function printHumanResults(results: FileResult[]): void {
@@ -154,19 +159,22 @@ function main(): number {
     throw new Error("validate requires at least one file or directory");
   }
 
-  const files = [...new Set(options.paths.flatMap(collectJsonFiles))].sort();
-  if (files.length === 0) {
+  const ioErrors = new Map<string, FileResult>();
+  const files = [...new Set(options.paths.flatMap(input => collectJsonFiles(input, ioErrors)))];
+  if (files.length === 0 && ioErrors.size === 0) {
     throw new Error("No JSON files were found");
   }
 
-  const validator = new ProtocolValidator();
-  const results = files.map((file) => validateFile(file, validator, options.schema));
+  const validator = new ProtocolValidator({ semantic: options.semantic });
+  const results = [...ioErrors.values(), ...files.map(file => validateFile(file, validator, options.schema))]
+    .sort((left, right) => left.file < right.file ? -1 : left.file > right.file ? 1 : 0);
   if (options.json) {
     process.stdout.write(`${JSON.stringify(results, null, 2)}\n`);
   } else {
     printHumanResults(results);
   }
 
+  if (results.some(result => result.ioError !== undefined)) return 2;
   return results.every((result) => result.valid) ? 0 : 1;
 }
 

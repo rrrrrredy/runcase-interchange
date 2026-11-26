@@ -33,6 +33,8 @@ node dist/src/cli.js validate examples/agent.run.observed.json --json
 
 The CLI exits with `0` when every document is valid, `1` when at least one document is invalid, and `2` for usage or I/O errors.
 
+Use `rci validate --semantic <path>` or `new ProtocolValidator({ semantic: true })` to check consistency after v1 schema validation. A passing score needs at least one required objective validation and every required validation must pass. Unscored results omit the numeric score. Each unavailable event source needs a gap naming that source. Case variable values must match their declared types. The default validator continues to accept structurally valid v1 documents.
+
 ## Install a tagged release
 
 Version 0.1 is distributed through this repository's GitHub Releases, not the public npm registry. Do not infer registry ownership from the package name.
