@@ -33,6 +33,51 @@ export interface ProtocolValidationResult {
   errors: ProtocolValidationError[];
 }
 
+// Fields used after the versioned JSON Schema has accepted the document.
+type SemanticDocument =
+  | { schema_version: "workflow.score.v1"; task_result: { status: string; score?: number };
+      validations: Array<{ required: boolean; objective: boolean; status: string }> }
+  | { schema_version: "agent.run.v1"; capture: { sources: Array<{ name: string; status: string }>;
+      gaps: Array<{ source?: string }> } }
+  | { schema_version: "workflow.case.v1"; variables: Array<{ value_type: string; value: unknown }> };
+
+function semanticErrors(document: SemanticDocument): ProtocolValidationError[] {
+  const errors: ProtocolValidationError[] = [];
+  function report(instancePath: string, message: string): void {
+    errors.push({ instancePath, schemaPath: "", keyword: "semantic", message, params: {} });
+  }
+  switch (document.schema_version) {
+    case "workflow.score.v1": {
+      const required = document.validations.filter(row => row.required);
+      if (document.task_result.status === "pass" &&
+          (!required.some(row => row.objective) || required.some(row => row.status !== "pass"))) {
+        report("/task_result/status", "pass requires objective evidence and all required validations to pass");
+      }
+      if (document.task_result.status === "not_scored" && document.task_result.score !== undefined) {
+        report("/task_result/score", "not_scored must omit the numeric score");
+      }
+      break;
+    }
+    case "agent.run.v1": {
+      const covered = new Set(document.capture.gaps.map(gap => gap.source));
+      document.capture.sources.forEach((source, index) => {
+        if (source.status === "unavailable" && !covered.has(source.name)) {
+          report(`/capture/sources/${index}/status`, "unavailable source needs an observation gap naming this source");
+        }
+      });
+      break;
+    }
+    case "workflow.case.v1":
+      document.variables.forEach(({ value, value_type }, index) => {
+        const expected = value_type === "path" || value_type === "identifier" ? "string" : value_type;
+        if (expected !== "json" && typeof value !== expected) {
+          report(`/variables/${index}/value`, `value must match its declared type ${value_type}`);
+        }
+      });
+  }
+  return errors;
+}
+
 const currentDirectory = dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
 const addFormats = require("ajv-formats") as FormatsPlugin;
@@ -64,10 +109,12 @@ function hasSchemaVersion(value: unknown): value is { schema_version: string } {
 }
 
 export class ProtocolValidator {
+  readonly #semantic: boolean;
   readonly #ajv: Ajv2020;
   readonly #validators = new Map<SchemaVersion, ValidateFunction>();
 
-  constructor() {
+  constructor({ semantic = false }: { semantic?: boolean } = {}) {
+    this.#semantic = semantic;
     this.#ajv = new Ajv2020({
       allErrors: true,
       strict: true,
@@ -120,11 +167,13 @@ export class ProtocolValidator {
       throw new Error(`Validator was not compiled for ${detectedVersion}`);
     }
 
-    const valid = validator(document) as boolean;
+    const errors = validator(document)
+      ? (this.#semantic ? semanticErrors(document as SemanticDocument) : [])
+      : normalizeErrors(validator.errors);
     return {
-      valid,
+      valid: errors.length === 0,
       schemaVersion: detectedVersion,
-      errors: valid ? [] : normalizeErrors(validator.errors),
+      errors,
     };
   }
 }
